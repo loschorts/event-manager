@@ -65,8 +65,6 @@ end
 
 generate_letters contents
 
-puts "The most common sign-up hour is: #{find_date_mode(contents, :hour)}"
+puts "The most common sign-up hour is: " + find_date_mode(contents, :hour).to_s
 
-dotw = %w[Sunday Monday Tuesday Wednesday Thursday Friday Saturday]
-
-puts "The most common sign-up day is: #{dotw[find_date_mode(contents, :wday)]}"
+puts "The most common sign-up day is: " + Date::DAYNAMES[find_date_mode(contents, :wday)]
