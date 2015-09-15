@@ -14,6 +14,7 @@ def clean_zipcode(zipcode)
 end
 
 def legislators_by_zipcode(zipcode)
+	Sunlight::Congress.api_key = "e179a6973728c4dd3fb1204283aaccb5"
 	Sunlight::Congress::Legislator.by_zipcode(zipcode)
 end
 
@@ -25,7 +26,6 @@ def save_thank_you_letter(id, form_letter)
 end
 
 def generate_letters (contents)
-	Sunlight::Congress.api_key = "e179a6973728c4dd3fb1204283aaccb5"
 	template_letter = File.read "form_letter.erb.html"
 	erb_template = ERB.new template_letter
 
@@ -69,4 +69,4 @@ puts "The most common sign-up hour is: #{find_date_mode(contents, :hour)}"
 
 dotw = %w[Sunday Monday Tuesday Wednesday Thursday Friday Saturday]
 
-puts "THe most common sign-up day is: #{dotw[find_date_mode(contents, :wday)]}"
+puts "The most common sign-up day is: #{dotw[find_date_mode(contents, :wday)]}"
