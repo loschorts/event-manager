@@ -5,27 +5,39 @@ require 'sunlight/congress'
 require 'erb'
 require 'date'
 
-contents = CSV.open("event_attendees.csv", headers: true, header_converters: :symbol).read
+CONTENTS = CSV.open("event_attendees.csv", headers: true, header_converters: :symbol).read
 
 #helper functions
 
-def clean_zipcode(zipcode)
+def clean_zipcode zipcode
 	zipcode.to_s.rjust(5,"0")[0..4]
 end
 
-def legislators_by_zipcode(zipcode)
+def legislators_by_zipcode zipcode
 	Sunlight::Congress.api_key = "e179a6973728c4dd3fb1204283aaccb5"
 	Sunlight::Congress::Legislator.by_zipcode(zipcode)
 end
 
-def save_thank_you_letter(id, form_letter)
+def save_thank_you_letter id, form_letter
 	Dir.mkdir("output") unless Dir.exists? "output"
 	filename = "output/thanks_#{id}.html"
 	File.open(filename, 'w') {|file| file.puts form_letter}
 	puts "created #{filename}"
 end
 
-def generate_letters (contents)
+def hour_format time
+	if time == 0
+		"12 AM"
+	elsif time < 12
+		"#{time} AM"
+	else
+		"#{time % 12} PM"
+	end
+end
+
+#main functions
+
+def generate_letters contents
 	template_letter = File.read "form_letter.erb.html"
 	erb_template = ERB.new template_letter
 
@@ -40,7 +52,7 @@ def generate_letters (contents)
 	end
 end
 
-def clean_phone_number(number)
+def clean_phone_number number
 	if number.length < 10
 		"invalid number (too short)"
 	elsif number.length == 10
@@ -61,10 +73,13 @@ def find_date_mode contents, selector
 	freq.max_by{|k,v| v}[0]
 end
 
+def print_boss_requests
+	puts "The most common sign-up hour is: " + hour_format(find_date_mode(CONTENTS, :hour))
+	puts "The most common sign-up day is: " + Date::DAYNAMES[find_date_mode(CONTENTS, :wday)]
+end
+
 #executive code
 
-generate_letters contents
+generate_letters CONTENTS
+print_boss_requests
 
-puts "The most common sign-up hour is: " + find_date_mode(contents, :hour).to_s
-
-puts "The most common sign-up day is: " + Date::DAYNAMES[find_date_mode(contents, :wday)]
